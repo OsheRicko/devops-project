@@ -9,13 +9,6 @@ app = Flask(__name__)
 
 approved_companies = ['635', '914']
 
-# environment variables: account_name, account_key, sqlusername, sqlpassword. --> note put ; inbetween.
-# account_name=sa4mywebapp
-# account_key=6MykdaCJ20gM2YirxZpos+Pc4Q/emAXC5c+RdoUF2+ns8/HwEUHz0k73y/BEe8kIEOwbns69kAXl+AStNcCcoQ==
-# sqlusername=osher
-# sqlpassword=Password1234
-
-
 
 @app.route('/<company_code>/<user>/<container>')
 def auth(company_code, container, user):
