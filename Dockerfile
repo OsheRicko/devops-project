@@ -44,9 +44,12 @@ RUN pip install jinja2
 # Expose the port that the app will be running on
 EXPOSE 5000
 
+# Define the ARG for storageAccountKey
+ARG storageAccountKey
+
 # Define environment variables for Azure Storage and SQL Server credentials
 ENV account_name=otprojectsa \
-    account_key=pkIWZRf+8CdZz3n8xCJLYfXGumwUTBMhk7ldHCPdyoA5xbCZn9fEwhtWzh0LFSFXGginZo6syQJj+AStOYc2zQ== \
+    storageAccountKey=$storageAccountKey \
     sqlusername=osher \
     sqlpassword=Password1234
 
