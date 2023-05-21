@@ -1,8 +1,8 @@
  # WALKTHROUGH
-   -------------
+
 
  AKS CONFIGURATION FOR THE APP TO RUN ON IT.
-   -------------------------------------------
+ -------------------------------------------
 
    1. Create a role assignment for my user (isn't working with seamless AD RBAC):
 
