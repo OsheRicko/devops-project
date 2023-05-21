@@ -1,5 +1,5 @@
-#WALKTHROUGH
-------------
+# WALKTHROUGH
+
 
 VM CONFIGURATION FOR THE JENKINS CONTAINER TO RUN ON.
 -----------------------------------------------------
