@@ -1,0 +1,28 @@
+FROM jenkins/jenkins:lts
+
+# Switch to root user
+USER root
+
+# Set JENKINS_HOME environment variable
+ENV JENKINS_HOME /var/jenkins_home
+
+# Copy the jenkins_home dir from the current working directory to the container
+COPY jenkins_home /var/jenkins_home
+
+# Install Docker and mount the docker socket
+RUN curl -fsSL https://get.docker.com | sh
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Install KUBECTL CLI
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install kubelogin
+RUN curl -LO https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-amd64.zip \
+    && unzip kubelogin-linux-amd64.zip \
+    && mv bin/linux_amd64/kubelogin /usr/local/bin/kubelogin \
+    && rm kubelogin-linux-amd64.zip
+

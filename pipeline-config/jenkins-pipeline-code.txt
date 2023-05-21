@@ -1,0 +1,122 @@
+pipeline {
+    agent any
+
+    environment {
+        AZURE_CLIENT_ID = 'f5968b46-da96-4594-96b4-ad3495f357f5'
+        AZURE_CLIENT_SECRET = 'Cjr8Q~5ado0UzYkt7jBSe80o_WJv66jLBZUsaag3'
+        AZURE_TENANT_ID = '9ddba2de-34fd-4b03-b24d-2ff8d257a903'
+        AZURE_SUBSCRIPTION = '6591167a-736f-4469-a4af-5d6b60f6269e'
+        AZURE_STORAGE_ACCOUNT = 'otprojectsa'
+        AZURE_RESOURCE_GROUP = 'ot-project-rg'
+        AZURE_CONTAINER_REGISTRY = 'otprojectacr.azurecr.io'
+        AZURE_K8S_NAME = 'ot-project-aks'
+        
+    }
+
+    stages {
+        stage('Azure Login') {
+            steps {
+                script {
+                    // Log in to Azure using the service principal
+                    sh "az login --service-principal --username ${env.AZURE_CLIENT_ID} --password ${env.AZURE_CLIENT_SECRET} --tenant ${env.AZURE_TENANT_ID}"
+
+                    // Set the default subscription
+                    sh "az account set --subscription ${env.AZURE_SUBSCRIPTION}"
+
+                    // Run Azure CLI commands here
+                    sh 'az account show'
+                    
+                    // Connect ACR
+                    sh 'az acr login -n otprojectacr'
+                }
+            }
+        }
+
+        stage('Retrieve Storage Account Key') {
+            steps {
+                script {
+                    // Run the command to retrieve the storage account key and store it in an environment variable
+                    def storageAccountKey = sh(
+                        returnStdout: true,
+                        script: "az storage account keys list -n ${env.AZURE_STORAGE_ACCOUNT} --query '[0].value' -o tsv"
+                    ).trim()
+                    
+                    // Set the environment variable
+                    env.STORAGE_ACCOUNT_KEY = storageAccountKey
+                    
+                    // Print the environment variable to verify if it worked
+                    sh 'echo "Storage Account Key: $STORAGE_ACCOUNT_KEY"'
+                }
+            }
+        }
+        
+        stage('Rotate Storage Account Key') {
+            steps {
+                script {
+                    sh "az storage account keys renew -n ${env.AZURE_STORAGE_ACCOUNT} --resource-group ${env.AZURE_RESOURCE_GROUP} --key key2"
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Generate a unique tag with date
+                    def currentDate = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    env.tag = "v1.${currentDate}"
+        
+                    // Remove the existing 'devops-project' directory if it exists
+                    sh 'rm -rf devops-project'
+        
+                    // Clone the Git repository and change to the 'devops-project' directory
+                    dir('devops-project') {
+                        sh "git clone --branch main https://github.com/OsheRicko/devops-project.git ."
+                    }
+        
+                    // Build the Docker image using the Dockerfile and pass the storageAccountKey
+                    sh "docker build --build-arg storageAccountKey=${env.STORAGE_ACCOUNT_KEY} -t ${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag} devops-project"
+                }
+            }
+        }
+    
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the Docker image to the Azure Container Registry
+                    sh "docker push ${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag}"
+                }
+            }
+        }
+        
+        stage('Adjust The Deployment File') {
+            steps {
+                script {
+                    // Change the working directory to the root of your repository
+                    dir('devops-project') {
+                        // Read the deployment.yaml file
+                        def deploymentYaml = readFile('aks-config/app-deployment.yaml')
+        
+                        // Replace the image name with the new image from ACR
+                        def updatedDeploymentYaml = deploymentYaml.replace('otprojectacr.azurecr.io/webapp-port-5000:latest', "${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag}")
+        
+                        // Write the updated deployment.yaml file
+                        writeFile file: 'aks-config/app-deployment.yaml', text: updatedDeploymentYaml
+                    }
+                }
+            }
+        }
+        
+        stage('Connect to AKS and Deploy') {
+            steps {
+                script {
+                    // Retrieve the AKS cluster credentials
+                    sh "az aks get-credentials --resource-group ${env.AZURE_RESOURCE_GROUP} --name ${env.AZURE_K8S_NAME} --overwrite-existing"
+        
+                    // Apply the updated deployment.yaml to the AKS cluster
+                    sh 'kubelogin convert-kubeconfig -l azurecli'
+                    sh 'kubectl apply -f devops-project/aks-config/app-deployment.yaml'
+                }
+            }
+        }
+    }
+}
