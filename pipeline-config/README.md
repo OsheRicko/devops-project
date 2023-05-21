@@ -1,3 +1,9 @@
+#WALKTHROUGH
+------------
+
+VM CONFIGURATION FOR THE JENKINS CONTAINER TO RUN ON.
+-----------------------------------------------------
+
 1. Connect to the TestVM (note: it's not the best practice, but it will serve as a container for the Jenkins pipeline due to quota limits).
 
 2. Download Docker Desktop, WSL, and Azure CLI.
