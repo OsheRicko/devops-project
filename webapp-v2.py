@@ -40,8 +40,8 @@ def auth(company_code, container, user):
         else:
             return 'Invalid user'
 
-        server = "ot-project-sql.database.windows.net"
-        database = "ot-project-db"
+        server = "ot-app-sql.database.windows.net"
+        database = "ot-app-db"
         conn_string = 'Driver={ODBC Driver 18 for SQL Server};Server=tcp:'+server+',1433;Database='+database+';Uid='+os.getenv('sqlusername')+';Pwd='+os.getenv('sqlpassword')+';Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 
         conn = odbc.connect(conn_string)
