@@ -48,7 +48,7 @@ EXPOSE 5000
 ARG storageAccountKey
 
 # Define environment variables for Azure Storage and SQL Server credentials
-ENV account_name=otprojectsa \
+ENV account_name=otappsa \
     storageAccountKey=$storageAccountKey \
     sqlusername=osher \
     sqlpassword=Password1234
