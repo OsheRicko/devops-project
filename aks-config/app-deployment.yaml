@@ -35,8 +35,11 @@ kind: Ingress
 metadata:
   name: webapp-ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/backend-path-prefix: /
+    appgw.ingress.kubernetes.io/use-private-ip: "true"
+    appgw.ingress.kubernetes.io/backend-hostname: "webapp-service.default.svc.cluster.local"
+    appgw.ingress.kubernetes.io/whitelist-source-range: "20.8.216.142/32"
 spec:
   rules:
   - http:
@@ -48,5 +51,3 @@ spec:
             name: webapp-service
             port:
               number: 80
-
-
