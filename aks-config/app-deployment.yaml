@@ -39,7 +39,7 @@ metadata:
     appgw.ingress.kubernetes.io/backend-path-prefix: /
     appgw.ingress.kubernetes.io/use-private-ip: "true"
     appgw.ingress.kubernetes.io/backend-hostname: "webapp-service.default.svc.cluster.local"
-    appgw.ingress.kubernetes.io/whitelist-source-range: "20.50.198.33/32"
+    appgw.ingress.kubernetes.io/whitelist-source-range: "20.224.19.62/32"
 spec:
   rules:
   - http:
