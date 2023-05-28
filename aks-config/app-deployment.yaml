@@ -37,7 +37,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/whitelist-source-range: "20.224.19.621/32"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "20.224.19.62/32"
 spec:
   rules:
   - http:
