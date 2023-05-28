@@ -2,14 +2,15 @@ pipeline {
     agent any
 
     environment {
-        AZURE_CLIENT_ID = 'f5968b46-da96-4594-96b4-ad3495f357f5'
-        AZURE_CLIENT_SECRET = 'Cjr8Q~5ado0UzYkt7jBSe80o_WJv66jLBZUsaag3'
+        AZURE_CLIENT_ID = 'f1994f38-52c8-4761-ae06-45203546bfe0'
+        AZURE_CLIENT_SECRET = 'XIR8Q~QrH-gmmNoGHwHLWZPsMa-_c_hIdZ1a~dyQ'
         AZURE_TENANT_ID = '9ddba2de-34fd-4b03-b24d-2ff8d257a903'
         AZURE_SUBSCRIPTION = '6591167a-736f-4469-a4af-5d6b60f6269e'
-        AZURE_STORAGE_ACCOUNT = 'otprojectsa'
-        AZURE_RESOURCE_GROUP = 'ot-project-rg'
-        AZURE_CONTAINER_REGISTRY = 'otprojectacr.azurecr.io'
-        AZURE_K8S_NAME = 'ot-project-aks'
+        AZURE_STORAGE_ACCOUNT = 'otappsa'
+        AZURE_RESOURCE_GROUP = 'ot-app-rg'
+        AZURE_CONTAINER_REGISTRY_NAME = 'otappacr'
+        AZURE_K8S_NAME = 'ot-app-aks'
+        MY_IP = '20.224.19.62'
         
     }
 
@@ -27,7 +28,7 @@ pipeline {
                     sh 'az account show'
                     
                     // Connect ACR
-                    sh 'az acr login -n otprojectacr'
+                    sh "az acr login -n ${env.AZURE_CONTAINER_REGISTRY_NAME}"
                 }
             }
         }
@@ -49,15 +50,7 @@ pipeline {
                 }
             }
         }
-        
-        stage('Rotate Storage Account Key') {
-            steps {
-                script {
-                    sh "az storage account keys renew -n ${env.AZURE_STORAGE_ACCOUNT} --resource-group ${env.AZURE_RESOURCE_GROUP} --key key2"
-                }
-            }
-        }
-        
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -74,7 +67,7 @@ pipeline {
                     }
         
                     // Build the Docker image using the Dockerfile and pass the storageAccountKey
-                    sh "docker build --build-arg storageAccountKey=${env.STORAGE_ACCOUNT_KEY} -t ${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag} devops-project"
+                    sh "docker build --build-arg storageAccountKey=${env.STORAGE_ACCOUNT_KEY} -t ${env.AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/pipeline-image:${env.tag} devops-project"
                 }
             }
         }
@@ -83,7 +76,7 @@ pipeline {
             steps {
                 script {
                     // Push the Docker image to the Azure Container Registry
-                    sh "docker push ${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag}"
+                    sh "docker push ${env.AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/pipeline-image:${env.tag}"
                 }
             }
         }
@@ -95,10 +88,13 @@ pipeline {
                     dir('devops-project') {
                         // Read the deployment.yaml file
                         def deploymentYaml = readFile('aks-config/app-deployment.yaml')
-        
+
                         // Replace the image name with the new image from ACR
-                        def updatedDeploymentYaml = deploymentYaml.replace('otprojectacr.azurecr.io/webapp-port-5000:latest', "${env.AZURE_CONTAINER_REGISTRY}/pipeline-image:${env.tag}")
-        
+                        def updatedDeploymentYaml = deploymentYaml.replace('otprojectacr.azurecr.io/webapp-port-5000:latest', "${env.AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/pipeline-image:${env.tag}")
+
+                        // Replace the IP address in the whitelist with the value from the MY_IP environment variable
+                        updatedDeploymentYaml = updatedDeploymentYaml.replace('20.224.19.621/32', "${env.MY_IP}/32")
+
                         // Write the updated deployment.yaml file
                         writeFile file: 'aks-config/app-deployment.yaml', text: updatedDeploymentYaml
                     }
@@ -115,6 +111,14 @@ pipeline {
                     // Apply the updated deployment.yaml to the AKS cluster
                     sh 'kubelogin convert-kubeconfig -l azurecli'
                     sh 'kubectl apply -f devops-project/aks-config/app-deployment.yaml'
+                }
+            }
+        }
+                
+        stage('Rotate Storage Account Key') {
+            steps {
+                script {
+                    sh "az storage account keys renew -n ${env.AZURE_STORAGE_ACCOUNT} --resource-group ${env.AZURE_RESOURCE_GROUP} --key key2"
                 }
             }
         }
