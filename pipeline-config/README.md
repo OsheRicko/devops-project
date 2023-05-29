@@ -19,6 +19,7 @@
 -  Create your credentials for future container connections.
 
 - Go to manage jenkins --> plugins --> available
+
 - Install the following plugins in Jenkins without restart: "Azure CLI", "Azure credentials", "Docker pipeline" and "Kubernetes CLI."
 
 ## Task 2: Create the pipelines
@@ -30,9 +31,12 @@
 
 - Copy the content from `devops-project/pipeline-config/pipeline-code`.
 And paste the code into the script area.
+
 ### Trigger:
 - Add a trigger to the pipeline:
+
 - Scroll up and locate "Build periodically."
+
 - Add the following syntax:
      ```makefile
      TZ=Asia/Jerusalem
@@ -43,11 +47,19 @@ And paste the code into the script area.
 ### Code:
    - For the code repeat the First pipeline Code steps, make these changes:
    
-	- Modify the code to retrieve the second key and rotate the first one:
-	    - Change line 42 to: `'script: "az storage account keys list -n ${env.AZURE_STORAGE_ACCOUNT} --query '[1].value' -o tsv"'`.
+   - Modify the code to retrieve the second key and rotate the first one:
+
+	    - Change line 42 to: 
+	    ```
+	    az storage account keys list -n ${env.AZURE_STORAGE_ACCOUNT} --query '[1].value' -o tsv
+	    ```
 	    
-	    - Change line 121 to: `'sh "az storage account keys renew -n ${env.AZURE_STORAGE_ACCOUNT} --resource-group ${env.AZURE_RESOURCE_GROUP} --key key1"'`.
-	- Make sure you change the environment to use yours, for the ip use you vm ip.
+	    - Change line 121 to:
+	    ```
+	    az storage account keys renew -n ${env.AZURE_STORAGE_ACCOUNT} --resource-group ${env.AZURE_RESOURCE_GROUP} --key key1
+	    ```
+	    
+   - Make sure you change the environment to use yours, for the ip use you vm ip.
 	
 ### Trigger:    
 - In the build trigger section, add the following syntax:
