@@ -1,3 +1,4 @@
+
 # Setting the pipelines (CI)
 ## Task 1: Set the jenkins environment.
 - Open web browser enter the container we created earlier:
@@ -84,3 +85,11 @@ And paste the code into the script area.
  Note: it failed because this is not the client vm.
  - Try again the same URL, using the client vm.
  
+#  Clean up resources
+- Open Cloudshell, use bash
+
+- Run this command:
+	```
+	az group delete --name ot-app-rg --yes --no-wait && az group delete --name client-rg --yes --no-wait && az group delete --name NetworkWatcherRG --yes --no-wait && az group delete --name DefaultResourceGroup-WEU --yes --no-wait && az group delete --name MC_ot-app-rg_ot-app-aks_westeurope --yes --no-wait && az group delete --name cloud-shell-storage-westeurope --yes --no-wait
+	```
+# Done!
