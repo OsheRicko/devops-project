@@ -17,7 +17,7 @@ Note: if you have multiple subscription in your account, use this:
 	  ```
 - Change the working directory to aks-config
    ``` bash
-	  cd aks-config
+	  cd devops-project/aks-config
 	 ```
 - Run terraform init command to let terraform know that you are using this dir as the working dir.
 
