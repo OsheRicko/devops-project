@@ -23,7 +23,7 @@
 
 - Click on "Create."
 - In the basics tab, select the server and resource group for the previously created app.
-- Enter a name for the database.
+- Enter "ot-app-db" as a name for the database.
 - Click on "Configure database."
 - Change the service tier to "General Purpose" with "Serverless" compute tier and apply.
 - Click "Next" and create a private endpoint between the database and the app subnet.
