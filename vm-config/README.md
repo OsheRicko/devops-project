@@ -1,4 +1,3 @@
-
 # Setting the VM Environment
 
 ## Task 1: Connect to the VM
@@ -72,9 +71,10 @@
      docker build -t stateful-jenkins .
      ```
 
-   - Run the container and access Jenkins at `127.0.0.1:8000` or `localhost:8000`:
+   - Run the container:
      ```bash
-     docker run -p 8000:8080 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -d --name stf-jenkins --restart=on-failure -t stateful-jenkins
+     docker run -p 8000:8080 -v /var/run/docker.sock:/var/run/docker.sock -d --name stf-jenkins --restart=on-failure -t stateful-jenkins
+
      ```
 
    - Wait a few minutes for the Jenkins server to start.
