@@ -24,6 +24,12 @@
  
 
 ## Task 2: Create the ingress itself.
+- Search for "Kubernetes services"
+
+- Click on "ot-app-aks" 
+- Click "Connect" and click use "Cloudshell"
+
+Note: Make sure the cloud autofill the commands, else do it manually from the connect tab we opened earlier.
 
 - Create a namespace for the ingress
 
